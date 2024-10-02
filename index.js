@@ -1,38 +1,58 @@
 const PI = 3.1415;
 const radius = 5;
-const area = PI * Math.sqrt(radius);
-const plant_area = .8;
-const cir = 2 * PI * radius;
-let number_of_plants = 20;
-let plant_need = plant_area * number_of_plants;
-const extra_space = area - plant_need;
-let number_of_weeks = 0;
-let num;
+const area = PI * radius * radius;
+const minSpacePerPlant = 0.8;
+const initialPlantCount = 20;
+const doublingRate = 2;
 
-//doubling
-
-function doubling (number_of_weeks){
-    number_of_plants = (number_of_plants * 2)
-    plant_need = Math.round(plant_area * number_of_plants)
-    console.log(`The number of plants after ${number_of_weeks} week is ${number_of_plants}.`)
-    console.log(`At ${number_of_weeks} the amount of space the plants would need is ${plant_need} Squared meters.`)
+function futurePlantGrowth(weeks, initialCount) {
+  let currentPlantCount = initialCount;
+  for (let i = 0; i < weeks; i++) {
+    currentPlantCount *= doublingRate;
+  }
+  return currentPlantCount;
 }
 
-//free space
+function actionNeeded(currentPlantCount, maxCapacity) {
+  if (currentPlantCount > maxCapacity * 0.8) {
+    return "Pruned";
+  } else if (currentPlantCount >= maxCapacity * 0.5) {
+    return "Monitored";
+  } else {
+    return "Planted";
+  }
+}
 
-// For 20 plants
+function calculateneededSpace(weeks, initialCount) {
+  const finalPlantCount = futurePlantGrowth(weeks, initialCount);
+  const neededArea = finalPlantCount * minSpacePerPlant;
+  return neededArea - area;
+}
 
-console.log(`For 20 plants the radius needed would be ${plant_need}.`)
-console.log(`The aviable area after ${number_of_plants} plants ${extra_space}.`)
+function calculateNewRadius(additionalArea) {
+  const newRadius = Math.sqrt(additionalArea / PI);
+  return newRadius;
+}
 
-//week 1
-doubling(0)
+// Part 1
+const maxCapacity = area / minSpacePerPlant;
+console.log("Week 1:", futurePlantGrowth(1, initialPlantCount), actionNeeded(futurePlantGrowth(1, initialPlantCount), maxCapacity));
+console.log("Week 2:", futurePlantGrowth(2, initialPlantCount), actionNeeded(futurePlantGrowth(2, initialPlantCount), maxCapacity));
+console.log("Week 3:", futurePlantGrowth(3, initialPlantCount), actionNeeded(futurePlantGrowth(3, initialPlantCount), maxCapacity));
 
-//week 2
-doubling(1)
+// Part 2
+const neededSpace = calculateneededSpace(10, 100);
+console.log("Additional space required:", neededSpace);
+const newRadius = calculateNewRadius(neededSpace);
+console.log("New radius:", newRadius);
 
-//week 3
-doubling(2)
-
-//After 10 weeks
-doubling(10)
+// Part 3
+try {
+  const finalPlantCount = futurePlantGrowth(10, 100);
+  const neededArea = finalPlantCount * minSpacePerPlant;
+  if (neededArea > area) {
+    throw new Error("Insufficient space for the plant population.");
+  }
+} catch (error) {
+  console.error(error.message);
+}
